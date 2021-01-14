@@ -15,13 +15,13 @@ class OysterCard
   public
   def initialize(balance = DEFAULT_BALANCE)
     @balance = balance
-    @entry_station = nil
-    @exit_station = nil
-    @journey = Journey.new
-    @journey_history = {
-      entry_station: @entry_station,
-      exit_station: @exit_station
-    }
+    @entry_station = []
+    @exit_station = []
+    @journey = []
+    # @journey_history = {
+    #   entry_station: @entry_station,
+    #   exit_station: @exit_station
+    # }
 
   end
 
@@ -34,14 +34,13 @@ class OysterCard
     fail "Not enough money on card" if @balance < MINIMUM_FARE
     # @entry_station = station
     # @journey_history[:entry_station] = @entry_station
-    journey.entry_station(station)
+    @station << station
   end
 
    def touch_out(station_out)
-    @exit_station = station_out
+    @station << station_out
     deduct(amount = MINIMUM_FARE)
-    @journey_history[:exit_station] = @exit_station
-    @entry_station = nil
+    # @entry_station = nil
   end
 
   def in_journey?
