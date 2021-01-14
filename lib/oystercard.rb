@@ -7,7 +7,7 @@ class OysterCard
   MINIMUM_FARE = 1
   DEFAULT_BALANCE = 0
 
-  attr_reader :balance, :entry_station, :journey_history, :exit_station
+  attr_reader :balance, :entry_station, :journey_history, :journey, :exit_station
 
   private
   attr_writer :balance
@@ -21,6 +21,7 @@ class OysterCard
       entry_station: @entry_station,
       exit_station: @exit_station
     }
+    @journey = nil
 
   end
 
@@ -33,8 +34,8 @@ class OysterCard
     fail "Not enough money on card" if @balance < MINIMUM_FARE
     # @entry_station = station
     # @journey_history[:entry_station] = @entry_station
-    journey = Journey.new(station)
-    journey.start
+    @journey = Journey.new(station)
+  
   end
 
    def touch_out(station_out)
