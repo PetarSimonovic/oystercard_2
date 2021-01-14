@@ -1,21 +1,25 @@
 class OysterCard
 
-# TEST PUSH 
+# TEST PUSH
 
   CARD_LIMIT = 90
   MINIMUM_FARE = 1
 
-  attr_reader :balance, :entry_station, :journey_history
-  attr_accessor :active
+  attr_reader :balance, :entry_station, :journey_history, :exit_station
 
   private
   attr_writer :balance
 
   public
   def initialize
-    @journey_history = {}
     @balance = 0
-    @entry_station = false
+    @entry_station = nil
+    @exit_station = nil
+    @journey_history = {
+      entry_station: @entry_station,
+      exit_station: @exit_station
+    }
+
   end
 
   def top_up(amount)
@@ -33,9 +37,11 @@ class OysterCard
     @journey_history[:entry_station] = @entry_station
   end
 
-  def touch_out(station)
-    @entry_station = nil
+   def touch_out(station_out)
+    @exit_station = station_out
     deduct(amount = MINIMUM_FARE)
+    @journey_history[:exit_station] = @exit_station
+    @entry_station = nil
   end
 
   def in_journey?

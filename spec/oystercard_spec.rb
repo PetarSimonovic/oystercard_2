@@ -4,6 +4,7 @@ describe OysterCard do
 
   let(:station) { double :station }
   let(:station_out) { double :station_out }
+  let(:journey) { {entry_station: station, exit_station: station_out} }
 
   describe '#top_up without min fare' do
 
@@ -63,7 +64,7 @@ describe OysterCard do
 
   end
 
-  describe 'touch out' do
+  describe '#touch out' do
     before do
       subject.touch_in(station)
     end
@@ -81,6 +82,12 @@ describe OysterCard do
       expect(subject.entry_station).to be nil
     end
 
+    it "records the exit station at touch out in journey_history" do
+      subject.touch_in(station)
+      subject.touch_out("London Bridge")
+      expect(subject.journey_history).to include(:exit_station => "London Bridge")
+    end
+
   end
 
   describe 'states if in journey or not' do
@@ -95,5 +102,13 @@ describe OysterCard do
       subject.touch_out(station_out)
       expect(subject).not_to be_in_journey
     end
+
+    it "records an entire journey" do
+      subject.touch_in(station)
+      subject.touch_out(station_out)
+      expect(subject.journey_history).to eq(journey)
+    end
+
   end
+
 end
