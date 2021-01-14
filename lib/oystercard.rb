@@ -1,4 +1,5 @@
 require_relative "station"
+require_relative "journey"
 
 class OysterCard
 
@@ -28,14 +29,11 @@ class OysterCard
     @balance += amount
   end
 
-  def deduct(amount)
-    @balance -= amount
-  end
-
   def touch_in(station)
     fail "Not enough money on card" if @balance < MINIMUM_FARE
-    @entry_station = station
-    @journey_history[:entry_station] = @entry_station
+    # @entry_station = station
+    # @journey_history[:entry_station] = @entry_station
+    Journey.new.entry_station(station)
   end
 
    def touch_out(station_out)
@@ -55,6 +53,10 @@ class OysterCard
   private
   def limit_exceeded?(amount)
     balance + amount > CARD_LIMIT
+  end
+
+  def deduct(amount)
+    @balance -= amount
   end
 
 end
