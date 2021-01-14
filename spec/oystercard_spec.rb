@@ -1,7 +1,8 @@
 require 'oystercard'
 
 describe OysterCard do
-
+  subject { described_class.new }
+  let(:topped_up_card) { described_class.new(OysterCard::CARD_LIMIT) }
   let(:station) { double :station }
   let(:station_out) { double :station_out }
   let(:journey) { {entry_station: station, exit_station: station_out} }
@@ -9,13 +10,8 @@ describe OysterCard do
   describe '#top_up without min fare' do
 
     it "does not touch in unless balance has minimum fare" do
-      card = OysterCard.new
-      expect{ card.touch_in(station) }.to raise_error "Not enough money on card"
+      expect{ subject.touch_in(station) }.to raise_error "Not enough money on card"
     end
-  end
-
-  before do
-    subject.top_up(10)
   end
 
   it { is_expected.to respond_to(:balance) }
@@ -30,21 +26,19 @@ describe OysterCard do
 
   describe '#top_up' do
     it 'increases the balance with the amount passed as an argument' do
-      subject.top_up(5)
-      expect(subject.balance).to eq 15
+      subject.top_up(OysterCard::MINIMUM_FARE)
+      expect(subject.balance).to eq(OysterCard::MINIMUM_FARE)
     end
 
     it "raises an exception when the new balance exceeds the limit" do
-      card = OysterCard.new
-      card.top_up(OysterCard::CARD_LIMIT)
-      expect { card.top_up(1) }.to raise_error "Card limit of £#{OysterCard::CARD_LIMIT} reached"
+      expect { topped_up_card.top_up(OysterCard::MINIMUM_FARE) }.to raise_error "Card limit of £#{OysterCard::CARD_LIMIT} reached"
     end
   end
 
   describe 'deduct' do
 
     it 'deducts amount from the balance of the card' do
-      expect{ subject.deduct(5) }.to change{ subject.balance}.by -5
+      expect{ topped_up_card.deduct(OysterCard::MINIMUM_FARE) }.to change{ topped_up_card.balance}.by -OysterCard::MINIMUM_FARE
     end
   end
 
@@ -53,39 +47,39 @@ describe OysterCard do
     it { is_expected.to respond_to(:touch_in).with(1).argument }
 
     it "remembers the entry station" do
-      subject.touch_in(station)
-      expect(subject.entry_station).to eq station
+      topped_up_card.touch_in(station)
+      expect(topped_up_card.entry_station).to eq station
     end
 
     it "stores the entry_station after touch in" do
-      subject.touch_in("Cockfosters")
-      expect(subject.journey_history).to include(:entry_station => "Cockfosters")
+      topped_up_card.touch_in("Cockfosters")
+      expect(topped_up_card.journey_history).to include(:entry_station => "Cockfosters")
     end
 
   end
 
   describe '#touch out' do
     before do
-      subject.touch_in(station)
+      topped_up_card.touch_in(station)
     end
 
     it 'responds to one argument' do
-      expect(subject).to respond_to(:touch_out).with(1).argument
+      expect(topped_up_card).to respond_to(:touch_out).with(1).argument
     end
 
     it 'it deduct the minimum fare after touch out' do
-      expect { subject.touch_out(station_out) }.to change{ subject.balance }.by(-1)
+      expect { topped_up_card.touch_out(station_out) }.to change{ topped_up_card.balance }.by(-1)
     end
 
     it "forgets the entry_station at touch out" do
-      subject.touch_out(station_out)
-      expect(subject.entry_station).to be nil
+      topped_up_card.touch_out(station_out)
+      expect(topped_up_card.entry_station).to be nil
     end
 
     it "records the exit station at touch out in journey_history" do
-      subject.touch_in(station)
-      subject.touch_out("London Bridge")
-      expect(subject.journey_history).to include(:exit_station => "London Bridge")
+      topped_up_card.touch_in(station)
+      topped_up_card.touch_out("London Bridge")
+      expect(topped_up_card.journey_history).to include(:exit_station => "London Bridge")
     end
 
   end
@@ -93,20 +87,20 @@ describe OysterCard do
   describe 'states if in journey or not' do
 
     it "it is in journey after touch in" do
-      subject.touch_in(station)
-      expect(subject).to be_in_journey
+      topped_up_card.touch_in(station)
+      expect(topped_up_card).to be_in_journey
     end
 
     it "it is not in journey after touch out" do
-      subject.touch_in(station)
-      subject.touch_out(station_out)
-      expect(subject).not_to be_in_journey
+      topped_up_card.touch_in(station)
+      topped_up_card.touch_out(station_out)
+      expect(topped_up_card).not_to be_in_journey
     end
 
     it "records an entire journey" do
-      subject.touch_in(station)
-      subject.touch_out(station_out)
-      expect(subject.journey_history).to eq(journey)
+      topped_up_card.touch_in(station)
+      topped_up_card.touch_out(station_out)
+      expect(topped_up_card.journey_history).to eq(journey)
     end
 
   end

@@ -1,9 +1,10 @@
-class OysterCard
+require_relative "station"
 
-# TEST PUSH
+class OysterCard
 
   CARD_LIMIT = 90
   MINIMUM_FARE = 1
+  DEFAULT_BALANCE = 0
 
   attr_reader :balance, :entry_station, :journey_history, :exit_station
 
@@ -11,8 +12,8 @@ class OysterCard
   attr_writer :balance
 
   public
-  def initialize
-    @balance = 0
+  def initialize(balance = DEFAULT_BALANCE)
+    @balance = balance
     @entry_station = nil
     @exit_station = nil
     @journey_history = {
